@@ -1,0 +1,158 @@
+Interactive Geospatial Data Visualization with Geoviews in Python
+Beginners Guide on how to get started using Geoviews.
+Abdishakur
+Towards Data Science
+Abdishakur
+
+·
+Follow
+
+Published in
+Towards Data Science
+
+·
+5 min read
+·
+Mar 3, 2020
+418
+
+
+4
+
+
+
+
+
+Interactive Map
+Interactive Data Visualization has become an integral part of the Data Science process in order to experiment and carry out the first explorative process in data science. There are few options to visualize Geographic data interactively in the Python ecosystem, However, I think Geoviews offers both an easy to use High-level API as well as extensive flexibility.
+
+GeoViews is a Python library that makes it easy to explore and visualize geographical, meteorological, and oceanographic datasets, such as those used in weather, climate, and remote sensing research.
+
+In this tutorial, we cover the basics components of interactive Geographic data visualization with Geoviews.
+
+First, let us import the libraries we use for this tutorial.
+
+import pandas as pd
+import geopandas as gpd
+import geoviews as gv
+import geoviews.feature as gf
+from geoviews import opts
+from cartopy import crs 
+import geoviews.tile_sources as gts
+gv.extension(‘bokeh’, ‘matplotlib’)
+Next, we start with a simple example showing how to plot coordinates with Geoviews library.
+
+Point Map
+Let us create a tuple for these four cities that hold coordinates and the name of the city.
+
+stockholm = ( 18.070625,59.320462, “Stockholm”)
+london = ( -0.135593, 51.507020, “London”)
+istanbul = ( 28.981856, 41.008327, “Istanbul”)
+mogadishu = ( 45.299626, 2.042388, “Mogadishu”)
+We can create simple points using Geoviews functionality. We can also use Pandas but no need for that as well. Once you create a Geoviews feature, you can just pass dframe()to create a DataFrame out of it as shown below.
+
+cities = gv.Points([stockholm, london, istanbul, mogadishu], vdims=”City”)
+cities.dframe()
+
+City Points
+Now, we are ready for our first map with Geoviews. You can simply call the features and it will plot points. However, in this case, we set up some attributes like the colour and size using opts options.
+
+cities.opts(opts.Points(global_extent=True, width=500, height=475, size=12, color=’black’))
+Below is shown the points map. This is a simple plot and will modify later. However, our points are mapped with their latitude and longitude.
+
+
+Simple map with Geoviews
+However, these points lack a context, and that is where we need base maps. In the next section, we see how to include base maps in the plot.
+
+Basemaps
+Geoviews offers some neat base maps. Let us see what is available.
+
+gv.Layout([ts.relabel(name) for name, ts in gts.tile_sources.items()]).opts(
+ ‘WMTS’, xaxis=None, yaxis=None, width=225, height=225).cols(6)
+
+Available base maps in Geoviews
+As of this date, there are 19 different base maps you can use in Geoviews, so let us try some of them.
+
+gv.tile_sources.OSM.opts( width=800, height=600)
+
+OpenStreetMap base map
+The above image shows OpenStreetMap(OSM) base maps for the whole world. Although it is empty right now, it is an interactive map.
+
+Next, we overlay the base map and the cities points we created above.
+
+(gv.tile_sources.CartoDark * cities).opts(opts.Points(global_extent=True, width=800, height=600, size=8, color=’red’))
+In Geoviews, this is as simple as using * to overlay any two (more) features. In our example, we overlay CartoDark base map and city points.
+
+
+City Points with a base map in Geoviews
+As shown in the above map, we can see that city points are in the right position with the help of the base map. In the next section, we cover a very important component in Geographic data science, projections.
+
+Projections
+As we flatten the earth in map making, we introduce some distortions. There are different projections some familiar and others unfamiliar. Let us see how projections distort maps.
+
+projections = [crs.RotatedPole, crs.LambertCylindrical, crs.Geostationary, 
+ crs.AzimuthalEquidistant, crs.OSGB, crs.EuroPP, crs.Gnomonic,
+ crs.Mollweide, crs.OSNI, crs.Miller, crs.InterruptedGoodeHomolosine,
+ crs.SouthPolarStereo, crs.Orthographic, crs.NorthPolarStereo, crs.Robinson,
+ crs.LambertConformal, crs.AlbersEqualArea]
+proj_layout = gv.Layout([gf.coastline.relabel(group=p.__name__).opts(projection=p(), backend=’matplotlib’)
+ for p in projections])
+gv.output(proj_layout, backend=’matplotlib’)
+The following image shows some of the different projections available to use.
+
+
+Geographic Projections
+We pick the Orthographic (M) projection to visualize distortions. But first, we read the world countries data with Geopandas. Reviews is well integrated with Geopandas library and can be readily used.
+
+world = gpd.read_file(gpd.datasets.get_path(‘naturalearth_lowres’))
+world.head()
+The world data contains polygon for countries and some other features like pop_estimate, continent etc..
+
+
+World population GeoDataFrame
+To plot a Polygon data, we just callgv.Polygon() and pass the Geopandas GeodataFrame.
+
+world_poly = gv.Polygons(world).opts(color=”gray”, line_color=”white” )
+We also create city points but this time with some tweaks. We decrease the point size to 8 and give it a red colour.
+
+cities_points = gv.Points(cities).opts(opts.Points(global_extent=True, width=800, height=600, size=8, color=’red’, tools=[‘hover’]))
+Now, we can overlay the points and polygons. In addition, we provide the projection we want to use in opts parameters.
+
+(world_poly * gf.ocean * cities_points).opts(projection=crs.Orthographic(central_longitude=0.1, central_latitude=22), global_extent=True, width=600, tools=[‘hover’])
+The following map depicts an Orthographic projection centred in Africa.
+
+
+Orthographic Projection with City Points
+Next, we learn how to plot Choropoleth map with Geoivews
+
+Choropleth Map
+You have already seen how to plot Polygons and we add only one component to plot choropleth map. We only provide the name of the column we want to use for the choropleth.
+
+gv.Polygons(world, vdims=[‘name’, ‘pop_est’, ‘gdp_md_est’], label=”World Population”).opts(color=’pop_est’,cmap=’blues’, colorbar=True, xaxis=None, yaxis=None,toolbar=’above’, width=1000, height=700, tools=[‘hover’])
+The choropleth map shown below uses a blue colour to classify world population per country.
+
+
+Choropleth map
+Finally, we cover some neat feature of Geoviews, the interactive widgets.
+
+Interactive Widgets
+Interactive widgets provide some flexible methods to visualize data. Thanks to Geoviews, you can now create widgets with a lot of complex code. In this example, we learn how to group data and display only one group. Let us say we want to display the continent we like to visualize.
+
+First, we group by continent while plotting with gv.Polygon() .
+
+coountries_grouped = gv.Polygons(world, vdims=[‘name’, ‘continent’],label=”Continent”).groupby(“continent”)
+
+Next, we plot and provide width and height options of the plot.
+
+continents = coountries_grouped.opts(width=600, height=400, tools=[‘hover’], infer_projection=True)
+continents
+The following GIF shows the widget created with just two lines of code above. Only the selected continent is displayed in the plot.
+
+
+GIF Drop Down Widget with Geoviews
+Conclusion
+In this tutorial, We have seen how to plot Geospatial data interactively using Geoviews. This tutorial covers some examples showcasing the basics of Geoviews. You might find some interesting tutorials from the official Geoviews gallery, so give it a try.
+
+To install Geoviews, You can simply use Conda:
+
+conda install -c pyviz geoviews

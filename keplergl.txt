@@ -1,0 +1,123 @@
+Kepler.GL & Jupyter Notebooks: Geospatial Data Visualization with Uber’s opensource Kepler.GL
+Plot Geospatial data inside Jupyter notebook & Easily interact with Kepler’s User interface to tweak the visualisation.
+Abdishakur
+Towards Data Science
+Abdishakur
+
+·
+Follow
+
+Published in
+Towards Data Science
+
+·
+5 min read
+·
+Oct 16, 2019
+540
+
+
+5
+
+
+
+
+kepler.gl for Jupyter is an excellent tool for big Geospatial data visualisation. Combine world-class visualisation tool, easy to use User interface (UI), and flexibility of python and Jupyter notebooks (3D Visualization GIF below, more in the article).
+
+
+3D building footprints
+kepler.gl is a web-based visualisation tool for large Geospatial datasets built on top of deck.gl. Uber made it an open-source last year, and its functionality is impressive. You can easily drag and drop your dataset and tweak it immediately on the web to visualise large scale geospatial datasets with ease. Have a look at this GIF below showcasing Kepler web-application.
+
+
+Kepler.gl Source
+I love working in Jupyter Notebook, and the same functionality of Kepler.gl is available in a Jupyter Notebook environment. In this tutorial, I highlight how you can incorporate kepler.gl for Jupyter visualisation tool inside your notebook.
+
+The advantage of using Kepler Jupyter notebook is that you get both the flexibility of Jupyter Notebooks as Kepler’s great visualisation tools.
+
+Displaying Data in Kelpler Jupyter notebook
+The dataset we use for this tutorial comes from NYC Open Data Portal. It is all incidents reported in New York in 2018.
+
+import pandas as pd
+from keplergl import KeplerGl
+import geopandas as gpd
+df = gpd.read_file("NYPD_complaints_2018.csv")
+df.head()
+The first few rows of the dataset are below. Incident data, category and the coordinates of the incident place are among the columns available in this dataset.
+
+
+To plot your data with Kepler, you first need to create a map. Let us do that with just one line of code.
+
+#Create a basemap 
+map = KeplerGl(height=600, width=800)
+#show the map
+map
+The default map, with a dark base map, appears in the notebook. You can easily change that if you want.
+
+
+Empty base map
+Now, let us add our data to the map. The easiest way to directly add your data to Kepler.gl is to convert it to a Geodataframe, and that we can do quickly with Geopandas.
+
+# Create a gepdataframe
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.Longitude, df.Latitude))
+# Add data to Kepler
+map.add_data(data=gdf, name=”crimes”)
+We added the data to the first map we created ( You can call again map to display in the cell below, but that is not necessary). The points appear on top of the base map created above.
+
+
+Points plotted in Kepler Jupyter
+The map has many points and is messy. Let us do some tweaking.
+
+UI: Tweak and Interact maps within Jupyter notebook
+Following is the fun part, you can tweak the type of visualisation, the colour and size easily with Kepler’s User interface. Let us change the colours and size of the map ( See GIF below).
+
+
+Kepler.gl Jupyter notebook User Interface
+We have shown above only one way of visualising and that typically depends on the dataset at hand. However, the following are the functionalities available in Kepler.gl now (See the picture below). You can visualise your data as Point, Hexagon, Heatmap, Arc or line with line data and Buildings visualisation with 3D availability.
+
+
+Kepler visualisation types. Source
+Let us cover some more data visualisation (See Hexagon visualisation below GIF). Kepler automatically counts each hexagon and visualises it. See how periphery areas have fewer incidents from the map below.
+
+
+Another great tool in Kepler.gl Jupyter notebook is the in-built time-series animations.
+
+
+Time-series animation
+Process your data, visualise and Never leave Jupyter notebook
+The beauty of this is that you get the Kepler’s functionality without leaving Jupyter notebook. Let us say we are interested in aggregating the data into neighbourhoods. I download the neighbourhood file and perform a simple spatial join to count out how many incidents are within each neighbourhood.
+
+I have a created a function that does that: spatial join, group by and then return a Geodataframe.
+
+def count_incidents_neighborhood(data, neighb):
+ # spatial join and group by to get count of incidents in each poneighbourhood 
+ joined = gpd.sjoin(gdf, neighb, op=”within”)
+ grouped = joined.groupby(‘ntaname’).size()
+ df = grouped.to_frame().reset_index()
+ df.columns = [‘ntaname’, ‘count’]
+ merged = Neighborhood.merge(df, on=’ntaname’, how=’outer’)
+ merged[‘count’].fillna(0,inplace=True)
+ merged[‘count’] = merged[‘count’].astype(int)
+ return merged
+merged_gdf = count_incidents_neighborhood(gdf, Neighborhood)
+Once we have the data we want to map, we can create a Kepler Map. Let us do this in a separate map; we call it map2. We add the data we have just created to visualise it.
+
+map2 = KeplerGl(height=600, width=800)
+# Add data to Kepler
+map2.add_data(data=merged_gdf, name=”NeighborhoodCrimes”)
+map2
+And here is the initial map and how you can tweak it.
+
+
+Polygon visualisation
+3D Visualization
+Kepler also has handy 3D visualisation. Here is an example using San Fransisco open data for building footprints.
+
+
+Installation
+To Install Keplergl Jupyter notebook, just run these three lines on your terminal.
+
+pip install ipywidgets
+pip install keplergl
+jupyter nbextension install --py --sys-prefix keplergl
+Conclusion
+We have covered some use case of Kepler.gl Jupyter notebook to visualise Geospatial data. I find this tool very useful as it offers an impressive functionality within Jupyter notebook. Experiment with it and let me know if you give it a try.

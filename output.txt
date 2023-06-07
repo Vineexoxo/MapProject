@@ -1,0 +1,38 @@
+                                           Positive
+State                                              
+Andaman and Nicobar Islands                  7516.0
+Andhra Pradesh                             235525.0
+Arunachal Pradesh                            2658.0
+Assam                                       87908.0
+Bihar                                       90553.0
+Chandigarh                                   2305.0
+Chhattisgarh                                19459.0
+Dadra and Nagar Haveli and Daman and Diu     3194.0
+Delhi                                      151928.0
+Goa                                         12333.0
+Gujarat                                    136004.0
+Haryana                                    275137.0
+Himachal Pradesh                             3993.0
+Jammu and Kashmir                           31371.0
+Jharkhand                                  346824.0
+Karnataka                                  264546.0
+Kerala                                     932639.0
+Ladakh                                       4720.0
+Madhya Pradesh                             791732.0
+Maharashtra                               1638961.0
+Manipur                                      4765.0
+Meghalaya                                    1718.0
+Mizoram                                       713.0
+Nagaland                                     3558.0
+Odisha                                      97920.0
+Puducherry                                  44037.0
+Punjab                                     124535.0
+Rajasthan                                   67954.0
+Sikkim                                        910.0
+Tamil Nadu                                 367430.0
+Telangana                                  124963.0
+Tripura                                     80413.0
+Uttar Pradesh                              126722.0
+Uttarakhand                                 14083.0
+West Bengal                                135596.0
+All                                       1638961.0
